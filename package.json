@@ -2,6 +2,7 @@
   "name": "react-form-validation",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://niradler.github.io/react-form-validation/build",
   "dependencies": {
     "Validator": "^1.0.5",
     "bootstrap": "^3.3.7",
