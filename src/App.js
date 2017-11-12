@@ -5,6 +5,8 @@ import Validator from 'Validator';
 class App extends Component {
   constructor(props) {
     super();
+    // declare fields and rules to validate the form for rules docs
+    // https://github.com/ratiw/Validator
     this.state = {
       formData: {
         fields: {
@@ -27,7 +29,7 @@ class App extends Component {
         isValid: false
       }
     };
-
+    //bind function to this.
     this.handleSubmit = this
       .handleSubmit
       .bind(this);
@@ -35,14 +37,17 @@ class App extends Component {
       .handleValidation
       .bind(this);
   }
+  //keep the state update with the input changes
   onChange = (e) => {
     const state = this.state;
     state.formData.fields[e.target.name] = e.target.value;
     this.setState(state);
   }
-
+  //run validation against specific field or the entire form
   handleValidation(name) {
     let v;
+    /* Validator is an external tool and to get more details go to
+     https://github.com/ratiw/Validator */
     if (name) {
       v = Validator.make({
         [name]: this.state.formData.fields[name]
@@ -61,16 +66,19 @@ class App extends Component {
     if (v.passes()) {
       console.log('passes')
       state.formData.errors = {};
+      state.formData.isValid = true;
     }
     this.setState(state);
   }
-
+  //handle function for the blur event
   onBlur = (e) => {
+    //validate spcefic field
     this.handleValidation(e.target.name);
   }
-
+  //handle function for the submit event
   handleSubmit(e) {
     e.preventDefault();
+    //validate all this fields in the form
     this.handleValidation();
   }
 
