@@ -1,95 +1,100 @@
 import React, {Component} from 'react';
-import Validator from 'Validator';
+const Validator = require('Validator')
 class Input extends Component {
   constructor(props) {
-    super();
-    // declare fields and rules to validate the form for rules docs
-    // https://github.com/ratiw/Validator
+    super(props);
     this.state = {
-      fields: {
-        input: ""
-      },
-      rules: {
-        input: props.rules
-      },
-      errors: {},
-      isValid: false
+      value: '',
+      isValid: true,
+      rules: props.rules,
+      errors: {}
     };
-    //bind function to this.
-this.validateTrigger = props.validateTrigger || 'onBlur';
+
+    this.handleChange = this
+      .handleChange
+      .bind(this);
+    this.handleBlur = this
+      .handleBlur
+      .bind(this);
     this.handleValidation = this
       .handleValidation
       .bind(this);
-  }
-  //keep the state update with the input changes
-  onChange = (e) => {
-    const state = this.state;
-    state.fields['input'] = e.target.value;
-    this.setState(state);
-    if (this.validateTrigger === 'onChange') {
-      this.handleValidation();
-      this
-        .props
-        .handler(this.props.name, this.state.isValid);
-    }
+    this.getState = this
+      .getState
+      .bind(this);
 
   }
   //run validation against specific field or the entire form
-  handleValidation() {
-    const name = 'input';
+  handleValidation(name, value) {
+
     let v;
     /* Validator is an external tool and to get more details go to
      https://github.com/ratiw/Validator */
+
     if (name) {
       v = Validator.make({
-        [name]: this.state.fields[name]
-      }, {[name]: this.state.rules[name]})
-    } else {
-      v = Validator.make(this.state.fields, this.state.rules)
+        [name]: value
+      }, {[name]: this.state.rules})
     }
 
     const state = this.state;
     if (v.fails()) {
       let errors = v.getErrors()
-      // console.log(errors)
+      //console.log(errors)
       state.isValid = false;
+      state.feedbackClass = this.props.errorClass;
       state.errors = errors;
 
     }
     if (v.passes()) {
-      // console.log('passes')
+      //console.log('passes')
       state.errors = {};
+      state.feedbackClass = this.props.successClass;
       state.isValid = true;
     }
     this.setState(state);
+    return state;
   }
-  //handle function for the blur event
-  onBlur = (e) => {
-    //validate spcefic field
-if (this.validateTrigger === 'onBlur') {
-  this.handleValidation();
-  this
-    .props
-    .handler(this.props.name, this.state.isValid);
-}
-  }
+  handleChange(e) {
 
+    const name = this.props.props.name
+      ? this.props.props.name
+      : this.props.key;
+    const value = e.target.value;
+    const state = this.handleValidation(name, value);
+    state.value = value;
+
+    if (typeof(this.props.onChange) === 'function') 
+      this.props.onChange(e)
+    if (typeof(this.props.syncFormState) === 'function') 
+      this.props.syncFormState(name, value, state.errors)
+
+    this.setState(state);
+  }
+  handleBlur(e) {
+    if (typeof(this.props.onBlur) === 'function') 
+      this.props.onBlur(e);
+    }
+  getState() {
+    return this.state;
+  }
   render() {
     return (
-      <div className="Input">
-        <label htmlFor="input" className={this.props.lableClass}>{this.props.labelText}</label>
-        <input
-          type={this.props.inputType}
-          className={this.props.inputClass}
-          placeholder={this.props.placeholder}
-          id={this.props.id}
-          name={this.props.name}
-          onBlur={this.onBlur}
-          onChange={this.onChange}/> {this.state.errors.input
-          ? <div className={this.props.errorClass}>
-              <span className="has-error">{this.state.errors.input}</span>
-            </div>
-          : null}
+      <div className={this.props.InputWrapClass + ' ' + this.state.feedbackClass}>
+        {this.props.label
+          ? <label {...this.props.label.props}>{this.props.label.text}</label>
+          : ''}
+        {React.createElement('input', {
+          ...this.props.props,
+          onChange: this.handleChange,
+          onBlur: this.handleBlur
+        }, null)}
+        {this.props.help
+          ? <span {...this.props.help.props}>{this.props.help.text}</span>
+          : ''}
+        {!this.state.isValid
+          ? <span {...this.props.error.props}>{this.props.error.text}</span>
+          : ''}
       </div>
     );
   }
