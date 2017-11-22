@@ -25,10 +25,10 @@ class Form extends Component {
     }
     this.syncFormState = this
       .syncFormState
-      .bind(this)
+      .bind(this);
     this.handleSubmit = this
       .handleSubmit
-      .bind(this)
+      .bind(this);
   }
   syncFormState(name, value, err) {
     const state = this.stateClone;
@@ -41,22 +41,25 @@ class Form extends Component {
     } else {
       delete state.errors[name];
     }
-
     this.stateClone = state;
   }
-  
+
   handleSubmit(e) {
     e.preventDefault();
     const state = this.stateClone;
-    state.isValid = (Object.getOwnPropertyNames(state.errors).length == 0);
-    this.setState(state);
-    console.log('submit', this.state)
-    
+    state.isValid = (Object.getOwnPropertyNames(state.errors).length === 0 && Object.getOwnPropertyNames(state.formData).length !== 0);
+    if (state.isValid){
+      this.setState(state);
+    }
+      if (typeof(this.props.onSubmit) === 'function') {
+        this.props.onSubmit(state);
+      }
+      
   }
-
+  
   render() {
     return (
-      <form className="col-md-6" onSubmit={this.handleSubmit}>
+      <form {...this.props} onSubmit={this.handleSubmit}>
         {this
           .default
           .fields

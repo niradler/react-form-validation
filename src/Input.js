@@ -7,7 +7,10 @@ class Input extends Component {
       value: '',
       isValid: true,
       rules: props.rules,
-      errors: {}
+      errors: {},
+      name: this.props.props.name
+        ? this.props.props.name
+        : this.props.key
     };
 
     this.handleChange = this
@@ -18,9 +21,6 @@ class Input extends Component {
       .bind(this);
     this.handleValidation = this
       .handleValidation
-      .bind(this);
-    this.getState = this
-      .getState
       .bind(this);
 
   }
@@ -40,14 +40,12 @@ class Input extends Component {
     const state = this.state;
     if (v.fails()) {
       let errors = v.getErrors()
-      //console.log(errors)
       state.isValid = false;
       state.feedbackClass = this.props.errorClass;
       state.errors = errors;
 
     }
     if (v.passes()) {
-      //console.log('passes')
       state.errors = {};
       state.feedbackClass = this.props.successClass;
       state.isValid = true;
@@ -57,27 +55,33 @@ class Input extends Component {
   }
   handleChange(e) {
 
-    const name = this.props.props.name
-      ? this.props.props.name
-      : this.props.key;
+    const name = this.state.name;
     const value = e.target.value;
     const state = this.handleValidation(name, value);
     state.value = value;
 
-    if (typeof(this.props.onChange) === 'function') 
-      this.props.onChange(e)
-    if (typeof(this.props.syncFormState) === 'function') 
-      this.props.syncFormState(name, value, state.errors)
-
+    if (typeof(this.props.onChange) === 'function') {
+      this
+        .props
+        .onChange(e)
+    }
     this.setState(state);
   }
   handleBlur(e) {
-    if (typeof(this.props.onBlur) === 'function') 
-      this.props.onBlur(e);
+    if (typeof(this.props.onBlur) === 'function') {
+      this
+        .props
+        .onBlur(e);
     }
-  getState() {
-    return this.state;
+
+    if (typeof(this.props.syncFormState) === 'function') {
+      this
+        .props
+        .syncFormState(this.state.name, this.state.value, this.state.errors)
+    }
+
   }
+
   render() {
     return (
       <div className={this.props.InputWrapClass + ' ' + this.state.feedbackClass}>
@@ -93,7 +97,7 @@ class Input extends Component {
           ? <span {...this.props.help.props}>{this.props.help.text}</span>
           : ''}
         {!this.state.isValid
-          ? <span {...this.props.error.props}>{this.props.error.text}</span>
+          ? <span {...this.props.error.props}>{this.props.error.text !=='auto'?this.props.error.text:this.state.errors[this.state.name] }</span>
           : ''}
       </div>
     );
