@@ -6,7 +6,8 @@ class Form extends Component {
     this.state = {
       isValid: false,
       formData: {},
-      errors: {}
+      errors: {},
+      validate:false
     }
     this.stateClone = this.state;
     this.default = {
@@ -42,28 +43,48 @@ class Form extends Component {
       delete state.errors[name];
     }
     this.stateClone = state;
+
   }
 
   handleSubmit(e) {
     e.preventDefault();
     const state = this.stateClone;
-    state.isValid = (Object.getOwnPropertyNames(state.errors).length === 0 && Object.getOwnPropertyNames(state.formData).length !== 0);
-    if (state.isValid){
+    const isErr = Object
+      .getOwnPropertyNames(state.errors)
+      .length;
+    let isEmpty = false;
+    for (const key in state.formData) {
+      if (state.formData.hasOwnProperty(key) && state.formData[key].length === 0) {
+        isEmpty = true;
+        break;
+      }
+    }
+if (isEmpty || isErr) {
+      state.isValid = false;
+      state.validate=true;
+    }else{
+      state.validate=false;
+      state.isValid = true;
+    }
+
+    if (typeof(this.props.onSubmit) === 'function') {
+      this
+        .props
+        .onSubmit(state);
+    }
+
+    if (state.isValid) {
       this.setState(state);
     }
-      if (typeof(this.props.onSubmit) === 'function') {
-        this.props.onSubmit(state);
-      }
-      
   }
-  
+
   render() {
     return (
       <form {...this.props} onSubmit={this.handleSubmit}>
         {this
           .default
           .fields
-          .map((f) => (<Input {...f} key={Math.random()} syncFormState={this.syncFormState}/>))}
+          .map((f) => (<Input {...f} key={Math.random()} syncFormState={this.syncFormState} />))}
         <div>
           <button {...this.default.btn.props}>{this.default.btn.text}</button>
         </div>

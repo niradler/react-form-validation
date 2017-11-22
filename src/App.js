@@ -14,6 +14,7 @@ class App extends Component {
   }
   handleSubmit(fromState) {
     if (fromState.isValid) {
+      console.log('form valid', fromState)
       this.setState({
         todos: [
           ...this.state.todos, {
@@ -22,8 +23,11 @@ class App extends Component {
           }
         ]
       })
+    } else {
+      alert('form is not valid!!!')
+      console.log(fromState.errors)
     }
-     
+
   }
   render() {
     return (
@@ -42,41 +46,42 @@ class App extends Component {
               btn={{
               text: "Add",
               props: {
-                className: "btn btn-info"
+                className: "btn btn-info "
               }
             }}
               fields={[
               {
-                InputWrapClass: "form-group",
+                InputWrapClass: "form-group ",
                 errorClass: 'has-error',
                 successClass: 'has-success',
                 rules: 'min:4|required',
                 label: {
                   text: "Title",
                   props: {
-                    className: "pull-left"
+                    className: "control-label"
                   }
                 },
                 error: {
                   text: "auto",
                   props: {
-                    className: "help-block pull-left"
+                    className: "help-block"
                   }
                 },
                 props: {
-                  className: 'form-control',
+                  value:"ofir",
+                  className: 'form-control  input-md',
                   name: "title",
                   type: "text"
                 }
               }, {
-                InputWrapClass: "form-group",
+                InputWrapClass: "form-group ",
                 errorClass: 'has-error',
                 successClass: 'has-success',
                 rules: 'required',
                 label: {
                   text: "Body",
                   props: {
-                    className: "pull-left"
+                    className: "control-label"
                   }
                 },
                 error: {
@@ -86,14 +91,16 @@ class App extends Component {
                   }
                 },
                 props: {
-                  className: 'form-control',
+                  className: 'form-control input-md',
                   name: "body",
                   type: "text"
                 }
               }
             ]}/>
             <div className="col-md-3" id="right">
-              {this.state.todos.length>1? <h3>Todos:</h3>:''}
+              {this.state.todos.length > 0
+                ? <h3>Todos:</h3>
+                : ''}
               <ul className="list-group">
                 {this
                   .state
